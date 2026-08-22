@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krishi Yantra - Farm Equipment Rental</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo"><span>🚜</span> Krishi Yantra</div>
+  <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+  <nav class="nav" id="mainNav">
+    <a href="index.html"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Home</span></a>
+    <a href="equipment.html"><i class="fa-solid fa-tractor"></i> <span data-i18n="nav_equipment">Equipment</span></a>
+    <a href="my-bookings.html"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="nav_bookings">My Bookings</span></a>
+    <a href="list-equipment.html"><i class="fa-solid fa-plus"></i> <span data-i18n="nav_list">List Equipment</span></a>
+    <a href="weather.html"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span></a>
+    <a href="profile.html" id="navProfile" class="hidden"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+    <a href="login.html" id="navLogin"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="nav_login">Login</span></a>
+    <a href="#" id="navLogout" class="hidden"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="nav_logout">Logout</span></a>
+    <button id="langToggle" class="lang-toggle">हिंदी</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1 data-i18n="hero_title">Rent Farm Equipment Near You</h1>
+    <p data-i18n="hero_subtitle">Affordable machinery for every farmer. List your idle equipment and earn.</p>
+    <div class="search-bar">
+      <input type="text" id="heroSearch" data-i18n-placeholder="hero_search_placeholder" placeholder="Search tractor, harvester...">
+      <button id="heroSearchBtn"><i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="hero_search_btn">Search</span></button>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2><i class="fa-solid fa-layer-group"></i> <span data-i18n="categories">Categories</span></h2>
+    <div class="cat-grid">
+      <div class="cat-card" data-type="tractor"><div class="icon">🚜</div><h3 data-i18n="tractor">Tractor</h3></div>
+      <div class="cat-card" data-type="harvester"><div class="icon">🌾</div><h3 data-i18n="harvester">Harvester</h3></div>
+      <div class="cat-card" data-type="cultivator"><div class="icon">🌱</div><h3 data-i18n="cultivator">Cultivator</h3></div>
+      <div class="cat-card" data-type="seeder"><div class="icon">🌽</div><h3 data-i18n="seeder">Seeder</h3></div>
+      <div class="cat-card" data-type="irrigation"><div class="icon">💧</div><h3 data-i18n="irrigation">Irrigation</h3></div>
+      <div class="cat-card" data-type="other"><div class="icon">🛠️</div><h3 data-i18n="other">Other</h3></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:white;">
+  <div class="container">
+    <h2><i class="fa-solid fa-fire"></i> <span data-i18n="popular">Popular Equipment</span></h2>
+    <div id="popularGrid" class="grid grid-3"></div>
+    <div class="text-center mt-2"><a href="equipment.html" class="btn btn-outline">View All Equipment <i class="fa-solid fa-arrow-right"></i></a></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="weather_summary">Today's Weather</span></h2>
+    <div id="weatherSummary"><p data-i18n="loading">Loading...</p></div>
+  </div>
+</section>
+
+<section class="section" style="background:white;">
+  <div class="container">
+    <h2><i class="fa-solid fa-gears"></i> <span data-i18n="how_it_works">How It Works</span></h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3 data-i18n="how_step1_title">Search Equipment</h3><p data-i18n="how_step1_desc">Find nearby tractors & harvesters</p></div>
+      <div class="step"><div class="num">2</div><h3 data-i18n="how_step2_title">Select Dates</h3><p data-i18n="how_step2_desc">Choose rental period on calendar</p></div>
+      <div class="step"><div class="num">3</div><h3 data-i18n="how_step3_title">Book & Earn</h3><p data-i18n="how_step3_desc">Confirm booking, start farming</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="background: var(--primary); color:white; padding:24px; border-radius:12px; text-align:center;">
+      <h2 style="color:white; justify-content:center;" data-i18n="cta_title">Have Equipment to Rent?</h2>
+      <p style="margin:8px 0 16px;">Earn up to ₹50,000/month from idle machinery</p>
+      <a href="list-equipment.html" class="btn btn-accent btn-large"><i class="fa-solid fa-plus"></i> <span data-i18n="cta_btn">List Your Equipment</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:white;">
+  <div class="container">
+    <h2><i class="fa-solid fa-award"></i> <span data-i18n="benefits">Benefits for Farmers</span></h2>
+    <div class="grid grid-3">
+      <div class="card" style="padding:20px; text-align:center;"><div style="font-size:2rem;">💰</div><h3 data-i18n="benefit1">Save 70% vs buying new</h3></div>
+      <div class="card" style="padding:20px; text-align:center;"><div style="font-size:2rem;">📈</div><h3 data-i18n="benefit2">Earn from idle machines</h3></div>
+      <div class="card" style="padding:20px; text-align:center;"><div style="font-size:2rem;">✅</div><h3 data-i18n="benefit3">Verified owners & support</h3></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p data-i18n="footer_text">Krishi Yantra - Empowering Farmers 2024</p>
+  <p style="margin-top:8px; opacity:0.8;">Sehore • Ludhiana • Nashik • Karnal • Indore</p>
+</footer>
+
+<script src="js/translations.js"></script>
+<script src="js/main.js"></script>
+<script src="js/equipment.js"></script>
+<script src="js/weather.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadAndRenderPopular();
+  document.getElementById('heroSearchBtn').addEventListener('click', ()=>{
+    const q=document.getElementById('heroSearch').value.trim();
+    window.location.href = q ? `equipment.html?search=${encodeURIComponent(q)}` : 'equipment.html';
+  });
+  document.getElementById('heroSearch').addEventListener('keypress', (e)=>{ if(e.key==='Enter') document.getElementById('heroSearchBtn').click(); });
+  document.querySelectorAll('.cat-card').forEach(c=>{
+    c.addEventListener('click', ()=> window.location.href=`equipment.html?type=${c.dataset.type}`);
+  });
+});
+</script>
+</body>
+</html>

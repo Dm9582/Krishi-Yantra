@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings - Krishi Yantra</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo"><span>🚜</span> Krishi Yantra</div>
+  <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+  <nav class="nav" id="mainNav">
+    <a href="index.html"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Home</span></a>
+    <a href="equipment.html"><i class="fa-solid fa-tractor"></i> <span data-i18n="nav_equipment">Equipment</span></a>
+    <a href="my-bookings.html" class="active"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="nav_bookings">My Bookings</span></a>
+    <a href="list-equipment.html"><i class="fa-solid fa-plus"></i> <span data-i18n="nav_list">List Equipment</span></a>
+    <a href="weather.html"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span></a>
+    <a href="profile.html" id="navProfile" class="hidden"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+    <a href="login.html" id="navLogin"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="nav_login">Login</span></a>
+    <a href="#" id="navLogout" class="hidden"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="nav_logout">Logout</span></a>
+    <button id="langToggle" class="lang-toggle">हिंदी</button>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2><i class="fa-solid fa-calendar"></i> <span data-i18n="my_bookings">My Bookings</span></h2>
+    <div style="display:flex; gap:8px; margin:16px 0; flex-wrap:wrap;">
+      <button class="btn btn-primary filter-btn active" data-filter="all">All</button>
+      <button class="btn btn-outline filter-btn" data-filter="renter">My Rentals</button>
+      <button class="btn btn-outline filter-btn" data-filter="owner">Incoming Requests</button>
+    </div>
+    <div id="alertContainer"></div>
+    <div id="bookingsGrid" class="grid grid-2"></div>
+    <div id="noBookings" class="hidden" style="text-align:center; padding:40px; background:white; border-radius:12px;">
+      <div style="font-size:3rem;">📅</div><p>No bookings yet</p><a href="equipment.html" class="btn btn-primary mt-2">Browse Equipment</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p data-i18n="footer_text">Krishi Yantra - Empowering Farmers 2024</p></footer>
+<script src="js/translations.js"></script>
+<script src="js/main.js"></script>
+<script>
+let allBookings=[];
+async function loadBookings(filter='all'){
+  try{
+    let url='/bookings';
+    if(filter==='renter') url='/bookings?type=renter';
+    else if(filter==='owner') url='/bookings?type=owner';
+    allBookings=await apiFetch(url);
+    renderBookings(allBookings);
+  }catch(e){ showAlert(e.message,'error'); if(e.message.includes('token')) window.location.href='login.html'; }
+}
+function renderBookings(list){
+  const grid=document.getElementById('bookingsGrid');
+  const empty=document.getElementById('noBookings');
+  if(!list || list.length===0){ grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  grid.innerHTML=list.map(b=>`
+    <div class="card" style="padding:16px;">
+      <div style="display:flex; gap:12px;">
+        <img src="${b.image_url||'https://via.placeholder.com/120x90?text='+encodeURIComponent(b.equipment_name)}" style="width:100px; height:75px; object-fit:cover; border-radius:8px;">
+        <div style="flex:1;">
+          <h3 style="font-size:1.1rem;">${b.equipment_name}</h3>
+          <div class="card-meta"><i class="fa-solid fa-tag"></i> ${b.equipment_type} • ${b.location}</div>
+          <div class="card-meta"><i class="fa-solid fa-calendar"></i> ${formatDate(b.start_date)} → ${formatDate(b.end_date)} (${b.days} <span data-i18n="days">days</span>)</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <span style="font-weight:800; color:var(--primary);">₹${b.total_price.toLocaleString('en-IN')}</span>
+            <span class="badge ${b.status==='confirmed'?'badge-available':b.status==='cancelled'?'badge-rented':'badge-available'}">${b.status}</span>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:6px;">
+            ${b.status!=='cancelled' && b.status!=='completed' ? `<button onclick="updateStatus(${b.id},'cancelled')" class="btn btn-outline" style="padding:6px 12px; font-size:0.85rem;"><i class="fa-solid fa-xmark"></i> Cancel</button>`:''}
+            ${b.status==='confirmed' ? `<button onclick="updateStatus(${b.id},'completed')" class="btn btn-primary" style="padding:6px 12px; font-size:0.85rem;"><i class="fa-solid fa-check"></i> Complete</button>`:''}
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:0.85rem; color:#666;"><i class="fa-solid fa-user"></i> ${b.renter_name||b.owner_name||''} • Booked on ${formatDate(b.created_at)}</div>
+    </div>
+  `).join('');
+  applyTranslations();
+}
+async function updateStatus(id, status){
+  if(!confirm(`Change booking to ${status}?`)) return;
+  try{ await apiFetch(`/bookings/${id}`, { method:'PUT', body: JSON.stringify({status}) }); showAlert('Booking updated','success'); loadBookings(document.querySelector('.filter-btn.active').dataset.filter); }catch(e){ showAlert(e.message,'error'); }
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  if(!isLoggedIn()){ window.location.href='login.html'; return; }
+  loadBookings('all');
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>{b.classList.remove('active'); b.classList.remove('btn-primary'); b.classList.add('btn-outline');});
+      btn.classList.add('active'); btn.classList.remove('btn-outline'); btn.classList.add('btn-primary');
+      loadBookings(btn.dataset.filter);
+    });
+  });
+});
+</script>
+</body>
+</html>

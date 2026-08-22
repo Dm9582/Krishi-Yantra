@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather - Krishi Yantra</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo"><span>🚜</span> Krishi Yantra</div>
+  <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+  <nav class="nav" id="mainNav">
+    <a href="index.html"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Home</span></a>
+    <a href="equipment.html"><i class="fa-solid fa-tractor"></i> <span data-i18n="nav_equipment">Equipment</span></a>
+    <a href="my-bookings.html"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="nav_bookings">My Bookings</span></a>
+    <a href="list-equipment.html"><i class="fa-solid fa-plus"></i> <span data-i18n="nav_list">List Equipment</span></a>
+    <a href="weather.html" class="active"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span></a>
+    <a href="profile.html" id="navProfile" class="hidden"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+    <a href="login.html" id="navLogin"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="nav_login">Login</span></a>
+    <a href="#" id="navLogout" class="hidden"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="nav_logout">Logout</span></a>
+    <button id="langToggle" class="lang-toggle">हिंदी</button>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h2><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span> & Recommendations</h2>
+    <div class="form-card" style="max-width:600px; margin:0 auto 20px;">
+      <div class="form-group"><label>Location</label><input type="text" id="weatherLocation" value="Sehore, Madhya Pradesh" placeholder="Enter location"></div>
+      <div class="form-group"><label>Equipment Type for Recommendation</label>
+        <select id="weatherEquipType">
+          <option value="tractor">🚜 Tractor</option>
+          <option value="harvester">🌾 Harvester</option>
+          <option value="cultivator">🌱 Cultivator</option>
+          <option value="seeder">🌽 Seeder</option>
+          <option value="irrigation">💧 Irrigation</option>
+          <option value="other">🛠️ Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Date</label><input type="date" id="weatherDate"></div>
+      <button id="getWeatherBtn" class="btn btn-primary btn-block"><i class="fa-solid fa-magnifying-glass"></i> Get Weather & Recommendation</button>
+    </div>
+
+    <div id="weatherSummary"></div>
+    <div id="weatherRecommendation" class="mt-2"></div>
+
+    <div class="card" style="padding:20px; margin-top:20px;">
+      <h3>5-Day Forecast</h3>
+      <div id="forecastGrid" class="grid grid-5" style="grid-template-columns:repeat(5,1fr); gap:12px; margin-top:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p data-i18n="footer_text">Krishi Yantra - Empowering Farmers 2024</p></footer>
+<script src="js/translations.js"></script>
+<script src="js/main.js"></script>
+<script src="js/weather.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+  const dateInput=document.getElementById('weatherDate');
+  dateInput.valueAsDate=new Date();
+  async function load(){
+    const loc=document.getElementById('weatherLocation').value.trim()||'Sehore';
+    const type=document.getElementById('weatherEquipType').value;
+    const date=document.getElementById('weatherDate').value;
+    const w=await fetchWeather(loc);
+    renderWeatherSummary(w,'weatherSummary');
+    const rec=await fetchRecommendation(type, date, loc);
+    renderRecommendation(rec,'weatherRecommendation');
+    // Forecast grid
+    const fg=document.getElementById('forecastGrid');
+    if(w.forecast) fg.innerHTML=w.forecast.map(f=>`<div class="card" style="padding:12px; text-align:center;"><div style="font-weight:700;">${f.day}</div><div style="font-size:1.4rem;">${f.temp}°C</div><div>${f.condition}</div><div style="color:var(--primary); font-weight:700;">${f.rainProbability}% Rain</div></div>`).join('');
+  }
+  document.getElementById('getWeatherBtn').addEventListener('click', load);
+  load();
+});
+</script>
+</body>
+</html>

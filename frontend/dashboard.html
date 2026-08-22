@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Krishi Yantra</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo"><span>🚜</span> Krishi Yantra</div>
+  <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+  <nav class="nav" id="mainNav">
+    <a href="index.html"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Home</span></a>
+    <a href="equipment.html"><i class="fa-solid fa-tractor"></i> <span data-i18n="nav_equipment">Equipment</span></a>
+    <a href="my-bookings.html"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="nav_bookings">My Bookings</span></a>
+    <a href="list-equipment.html"><i class="fa-solid fa-plus"></i> <span data-i18n="nav_list">List Equipment</span></a>
+    <a href="weather.html"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span></a>
+    <a href="profile.html" id="navProfile"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+    <a href="#" id="navLogout"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="nav_logout">Logout</span></a>
+    <button id="langToggle" class="lang-toggle">हिंदी</button>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="section">
+    <h1 id="greeting" style="font-size:1.8rem; color:var(--primary-dark);">Namaste, Farmer 👋</h1>
+    <p id="userLocation" style="color:var(--text-light);"></p>
+    <div class="stats mt-2">
+      <div class="stat-card"><div class="num" id="statEquipment">0</div><div class="label"><i class="fa-solid fa-tractor"></i> <span data-i18n="my_equipment">My Equipment</span></div></div>
+      <div class="stat-card"><div class="num" id="statBookings">0</div><div class="label"><i class="fa-solid fa-calendar"></i> <span data-i18n="active_bookings">Active Bookings</span></div></div>
+      <div class="stat-card"><div class="num" id="statEarnings">₹0</div><div class="label"><i class="fa-solid fa-indian-rupee-sign"></i> <span data-i18n="earnings">Earnings</span></div></div>
+    </div>
+
+    <div class="grid grid-2 mt-2">
+      <div>
+        <h3 style="margin-bottom:12px;"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="todays_weather">Today's Weather</span></h3>
+        <div id="dashboardWeather"></div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:12px;"><i class="fa-solid fa-list"></i> Recent Bookings</h3>
+        <div id="recentBookings" class="card" style="padding:16px;"></div>
+        <a href="my-bookings.html" class="btn btn-outline mt-2" style="width:100%;">View All Bookings</a>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <h3>My Listed Equipment</h3>
+      <div id="myEquipmentGrid" class="grid grid-3 mt-2"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p data-i18n="footer_text">Krishi Yantra - Empowering Farmers 2024</p></footer>
+<script src="js/translations.js"></script>
+<script src="js/main.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/equipment.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async ()=>{
+  if(!isLoggedIn()){ window.location.href='login.html'; return; }
+  const user=getUser();
+  document.getElementById('greeting').textContent=`${t('dashboard_greeting')}, ${user.name} 👋`;
+  document.getElementById('userLocation').textContent=user.location||'';
+  try{
+    const myEquipment=await apiFetch(`/equipment?owner_id=${user.id}`);
+    // Actually API expects owner_id param - our route supports it
+    // Fallback: filter all equipment owned
+    const all=await apiFetch('/equipment');
+    const mine=all.filter(e=>e.owner_id===user.id);
+    document.getElementById('statEquipment').textContent=mine.length;
+    renderEquipmentCards(mine.slice(0,3),'myEquipmentGrid');
+    if(mine.length===0) document.getElementById('myEquipmentGrid').innerHTML='<p>No equipment listed yet. <a href="list-equipment.html">List one</a></p>';
+  }catch(e){ console.error(e); }
+  try{
+    const bookings=await apiFetch('/bookings');
+    const active=bookings.filter(b=>b.status==='confirmed' && new Date(b.end_date)>=new Date());
+    document.getElementById('statBookings').textContent=active.length;
+    const earnings=bookings.filter(b=>b.owner_id===user.id || bookings.some(x=>x)).reduce((sum,b)=> sum + (b.status!=='cancelled'?b.total_price:0),0);
+    // Simple earnings calc: sum of bookings where user is owner
+    const ownerBookings=bookings.filter(b=> b.owner_id===user.id);
+    // Need to fetch correctly: our /bookings? type=owner gives owner earnings
+    try{
+      const ownerData=await apiFetch('/bookings?type=owner');
+      const earn=ownerData.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+b.total_price,0);
+      document.getElementById('statEarnings').textContent=`₹${earn.toLocaleString('en-IN')}`;
+    }catch{ document.getElementById('statEarnings').textContent=`₹${earnings.toLocaleString('en-IN')}`; }
+
+    const recent=bookings.slice(0,3);
+    const container=document.getElementById('recentBookings');
+    if(recent.length===0) container.innerHTML='<p>No bookings yet</p>';
+    else container.innerHTML=recent.map(b=>`<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;"><div><strong>${b.equipment_name}</strong><br><small>${formatDate(b.start_date)} → ${formatDate(b.end_date)} • ${b.days} days</small></div><div><span class="badge ${b.status==='confirmed'?'badge-available':'badge-rented'}">${b.status}</span><br><small>₹${b.total_price.toLocaleString('en-IN')}</small></div></div>`).join('');
+  }catch(e){ console.error(e); }
+});
+</script>
+</body>
+</html>

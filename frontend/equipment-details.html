@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment Details - Krishi Yantra</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo"><span>🚜</span> Krishi Yantra</div>
+  <button class="hamburger" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+  <nav class="nav" id="mainNav">
+    <a href="index.html"><i class="fa-solid fa-house"></i> <span data-i18n="nav_home">Home</span></a>
+    <a href="equipment.html"><i class="fa-solid fa-tractor"></i> <span data-i18n="nav_equipment">Equipment</span></a>
+    <a href="my-bookings.html"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="nav_bookings">My Bookings</span></a>
+    <a href="list-equipment.html"><i class="fa-solid fa-plus"></i> <span data-i18n="nav_list">List Equipment</span></a>
+    <a href="weather.html"><i class="fa-solid fa-cloud-sun"></i> <span data-i18n="nav_weather">Weather</span></a>
+    <a href="profile.html" id="navProfile" class="hidden"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+    <a href="login.html" id="navLogin"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="nav_login">Login</span></a>
+    <a href="#" id="navLogout" class="hidden"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="nav_logout">Logout</span></a>
+    <button id="langToggle" class="lang-toggle">हिंदी</button>
+  </nav>
+</header>
+
+<div class="container">
+  <div id="alertContainer"></div>
+  <div id="equipmentDetails" class="section"></div>
+  <div class="grid grid-2">
+    <div>
+      <div class="calendar" id="calendar"></div>
+      <div id="weatherRecommendation" class="mt-2"></div>
+    </div>
+    <div>
+      <div class="card" style="padding:20px;">
+        <h3><i class="fa-solid fa-calendar"></i> <span data-i18n="booking_summary">Booking Summary</span></h3>
+        <div style="margin:16px 0; line-height:2;">
+          <div style="display:flex; justify-content:space-between;"><span>Start Date:</span><strong id="selectedStart">-</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>End Date:</span><strong id="selectedEnd">-</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span data-i18n="duration">Duration</span>:<strong id="selectedDuration">-</strong></div>
+          <div style="display:flex; justify-content:space-between; font-size:1.2rem; border-top:1px solid #eee; padding-top:8px;"><span data-i18n="total_price">Total Price</span>:<strong id="selectedTotal" style="color:var(--primary);">-</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Price per day:</span><strong id="pricePerDay">-</strong></div>
+        </div>
+        <a id="bookNowBtn" href="#" class="btn btn-primary btn-block btn-large"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="book_now">Book Now</span></a>
+        <p style="text-align:center; margin-top:8px; font-size:0.85rem; color:#666;">Select dates on calendar</p>
+      </div>
+      <div class="card" style="padding:16px; margin-top:16px;">
+        <h4><i class="fa-solid fa-circle-info"></i> <span data-i18n="specifications">Specifications</span></h4>
+        <div id="specs" style="margin-top:8px; line-height:1.8;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding:20px; margin-top:20px;">
+    <h3>Reviews</h3>
+    <div id="reviewsList" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<footer class="footer"><p data-i18n="footer_text">Krishi Yantra - Empowering Farmers 2024</p></footer>
+
+<script src="js/translations.js"></script>
+<script src="js/main.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/calendar.js"></script>
+<script>
+let eqData=null;
+async function loadDetails(){
+  const params=new URLSearchParams(window.location.search);
+  const id=params.get('id');
+  if(!id){ showAlert('No equipment selected','error'); return; }
+  try{
+    eqData=await apiFetch(`/equipment/${id}`);
+    document.getElementById('equipmentDetails').innerHTML=`
+      <div class="grid grid-2" style="align-items:start;">
+        <div class="card">
+          <div class="card-img" style="height:320px;"><img src="${eqData.image_url}" alt="${eqData.name}" style="width:100%; height:100%; object-fit:cover;"></div>
+        </div>
+        <div>
+          <h1 style="font-size:1.8rem; color:var(--primary-dark);">${eqData.name}</h1>
+          <div style="margin:12px 0; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="badge badge-available">${eqData.availability_status}</span>
+            <span>⭐ ${eqData.rating} Rating</span>
+            <span><i class="fa-solid fa-tag"></i> ${eqData.type}</span>
+          </div>
+          <p style="color:var(--text-light); line-height:1.7; margin:12px 0;">${eqData.description}</p>
+          <div class="card-price" style="font-size:1.6rem;">₹${eqData.price_per_day.toLocaleString('en-IN')} <span>/ day</span></div>
+          <div style="background:#f1f8e9; padding:12px; border-radius:8px; margin:12px 0;">
+            <div><i class="fa-solid fa-user"></i> <strong data-i18n="owner">Owner</strong>: ${eqData.owner_name} (${eqData.owner_phone})</div>
+            <div><i class="fa-solid fa-location-dot"></i> ${eqData.location}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('pricePerDay').textContent=`₹${eqData.price_per_day.toLocaleString('en-IN')}`;
+    document.getElementById('pricePerDay').dataset.price=eqData.price_per_day;
+    document.getElementById('specs').innerHTML=`
+      <div><strong data-i18n="type">Type</strong>: ${eqData.type}</div>
+      <div><strong data-i18n="location">Location</strong>: ${eqData.location}</div>
+      <div><strong>Available</strong>: ${eqData.availability_status}</div>
+      <div><strong>Owner</strong>: ${eqData.owner_name}</div>
+    `;
+    document.getElementById('bookNowBtn').href=`booking.html?id=${eqData.id}`;
+    // calendar
+    loadBookedDates(eqData.bookings||[]);
+    renderCalendar();
+    setOnDateSelect(async (start,end)=>{
+      updateBookingSummary();
+      if(start){
+        const rec=await fetchRecommendation(eqData.type, start, eqData.location);
+        renderRecommendation(rec,'weatherRecommendation');
+        // update book button to include dates
+        const s=start, e=end||start;
+        document.getElementById('bookNowBtn').href=`booking.html?id=${eqData.id}&start=${s}&end=${e}`;
+      }
+    });
+    const rec=await fetchRecommendation(eqData.type, new Date().toISOString().split('T')[0], eqData.location);
+    renderRecommendation(rec,'weatherRecommendation');
+    // reviews
+    const revContainer=document.getElementById('reviewsList');
+    if(eqData.reviews && eqData.reviews.length){
+      revContainer.innerHTML=eqData.reviews.map(r=>`<div style="border-bottom:1px solid #eee; padding:12px 0;"><strong>${r.user_name}</strong> ⭐${r.rating}<p>${r.comment}</p><small>${new Date(r.created_at).toLocaleDateString()}</small></div>`).join('');
+    } else revContainer.innerHTML='<p>No reviews yet</p>';
+    applyTranslations();
+  }catch(e){ showAlert(e.message,'error'); }
+}
+document.addEventListener('DOMContentLoaded', loadDetails);
+</script>
+</body>
+</html>
