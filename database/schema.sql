@@ -1,4 +1,4 @@
-﻿PRAGMA foreign_keys = ON;
+PRAGMA foreign_keys = ON;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (

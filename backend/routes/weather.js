@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const { getMockWeather, getRecommendation } = require('../services/weatherService');
 const router = express.Router();
 

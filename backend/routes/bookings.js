@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const { getAsync, allAsync, runAsync } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();

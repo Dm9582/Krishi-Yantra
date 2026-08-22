@@ -1,4 +1,4 @@
-﻿# Krishi Yantra - Farm Equipment Sharing Platform
+# Krishi Yantra - Farm Equipment Sharing Platform
 
 Peer-to-peer farm equipment rental platform for Indian farmers.
 

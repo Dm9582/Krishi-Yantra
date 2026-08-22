@@ -1,4 +1,4 @@
-﻿function getMockWeather(location = 'Sehore') {
+function getMockWeather(location = 'Sehore') {
     // Deterministic mock based on location string + date
     const temps = { 'Sehore': 32, 'Ludhiana': 28, 'Nashik': 30, 'Karnal': 29, 'Bathinda': 31, 'Indore': 33, 'Jaipur': 35, 'Anand': 34, 'Nagpur': 32, 'Pune': 27 };
     // Seed from location
