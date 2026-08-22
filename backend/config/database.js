@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
-const dbPath = path.join(__dirname, '../../database/krishi.db');
+const isVercel = !!process.env.VERCEL;
+const dbPath = isVercel ? path.join('/tmp', 'krishi.db') : path.join(__dirname, '../../database/krishi.db');
 const schemaPath = path.join(__dirname, '../../database/schema.sql');
 
 // Ensure database directory exists
@@ -49,7 +50,6 @@ function allAsync(sql, params = []) {
 async function initDB() {
     try {
         const schema = fs.readFileSync(schemaPath, 'utf8');
-        // Split and run statements
         await new Promise((resolve, reject) => {
             db.exec(schema, (err) => {
                 if (err) reject(err);
@@ -58,7 +58,6 @@ async function initDB() {
         });
         console.log('Schema initialized');
 
-        // Check if already seeded
         const userCount = await getAsync('SELECT COUNT(*) as count FROM users');
         if (userCount && userCount.count === 0) {
             console.log('Seeding database...');
@@ -91,12 +90,10 @@ async function initDB() {
             }
             console.log('Equipment seeded (11 items)');
 
-            // Sample booking: Tractor #1 booked 2026-08-10 to 2026-08-15
             await runAsync('INSERT INTO bookings (equipment_id, renter_id, start_date, end_date, total_price, status) VALUES (?,?,?,?,?,?)', [1, 2, '2026-08-10', '2026-08-15', 15000, 'confirmed']);
             await runAsync('INSERT INTO bookings (equipment_id, renter_id, start_date, end_date, total_price, status) VALUES (?,?,?,?,?,?)', [4, 3, '2026-08-20', '2026-08-22', 16500, 'confirmed']);
             console.log('Sample bookings seeded');
 
-            // Sample reviews
             await runAsync('INSERT INTO reviews (equipment_id, user_id, rating, comment) VALUES (?,?,?,?)', [1, 2, 5, 'Excellent tractor, well maintained!']);
             await runAsync('INSERT INTO reviews (equipment_id, user_id, rating, comment) VALUES (?,?,?,?)', [4, 1, 4, 'Harvester worked great for my wheat field.']);
             console.log('Reviews seeded');
@@ -108,7 +105,7 @@ async function initDB() {
     }
 }
 
-// Initialize immediately
 initDB();
 
 module.exports = { db, runAsync, getAsync, allAsync, initDB };
+

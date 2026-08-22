@@ -57,10 +57,12 @@ app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
 });
 
-app.listen(PORT, () => {
+if (require.main === module) {
+  app.listen(PORT, () => {
     console.log(`Krishi Yantra server running on http://localhost:${PORT}`);
     console.log(`Frontend: http://localhost:${PORT}/`);
     console.log(`API Health: http://localhost:${PORT}/api/health`);
-});
+  });
+}
 
 module.exports = app;

@@ -77,3 +77,43 @@ krishi-yantra/
 
 ## Double-Booking Prevention
 SQL overlap check: new booking rejected if exists where NOT (newEnd < existingStart OR newStart > existingEnd)
+
+## Deployment - Vercel
+
+This project is Vercel-ready.
+
+**vercel.json** configured for @vercel/node to serve Express + static frontend:
+`json
+{
+  "version": 2,
+  "builds": [{ ""src"": ""backend/server.js"", ""use"": ""@vercel/node"" }],
+  "routes": [{ ""src"": ""/(.*)"", ""dest"": ""backend/server.js"" }]
+}
+`
+
+**Steps to Deploy:**
+1. Push to GitHub (already at https://github.com/Dm9582/Krishi-Yantra.git)
+2. Go to https://vercel.com/new → Import Git Repository → Select Dm9582/Krishi-Yantra
+3. Vercel auto-detects Node.js, set:
+   - Build Command: (empty, uses vercel.json)
+   - Output Directory: (empty)
+   - Install Command: 
+pm install
+4. Add Environment Variables (optional, defaults work):
+   - JWT_SECRET = krishi_yantra_secret_2024_secure_key
+   - NODE_ENV = production
+5. Deploy → Vercel will build and assign https://krishi-yantra-*.vercel.app
+6. Test: https://your-domain.vercel.app/api/health should return {status:""ok""}
+
+**Local Vercel CLI:**
+`ash
+npm i -g vercel
+vercel login
+vercel --prod
+`
+
+**Note:** SQLite on Vercel uses /tmp/krishi.db (ephemeral, reseeded each cold start) - suitable for demo. For production persistence, swap to Postgres (Supabase/Neon) or Turso.
+
+## Live Demo
+- GitHub: https://github.com/Dm9582/Krishi-Yantra
+- Vercel: _(add your deployment URL after import)_
